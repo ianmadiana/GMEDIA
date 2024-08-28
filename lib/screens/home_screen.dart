@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maspos/models/product_model.dart';
 import 'package:maspos/screens/login_screen.dart';
 import 'package:maspos/services/api_service.dart';
 
@@ -20,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late ApiServices _apiServices;
   List<CategoryModel> _categories = [];
+  List<ProductModel> _products = [];
   final _formKey = GlobalKey<FormState>();
   String? _selectedCategoryId;
 
@@ -27,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     _apiServices = ApiServices(widget.token);
     _loadCategories();
+    _loadProducts();
     super.initState();
   }
 
@@ -34,6 +37,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final categories = await _apiServices.getCategories();
     setState(() {
       _categories = categories;
+    });
+  }
+
+  Future<void> _loadProducts() async {
+    final products = await _apiServices.getAllProduct();
+    setState(() {
+      _products = products;
     });
   }
 
@@ -100,9 +110,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
                             }
                           },
-                          child: Text(
+                          child: const Text(
                             'Tambah',
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ),
@@ -162,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               return DropdownMenuItem(
                                 value: category.id,
                                 child: Text(category.name),
-                              ); 
+                              );
                             },
                           ).toList(),
                           onChanged: (value) {
@@ -205,14 +215,16 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(10),
         child: Column(
           children: [
-            const Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Category(),
-                    Category(),
-                  ],
-                ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _categories.length,
+                itemBuilder: (context, index) {
+                  final category = _categories[index];
+                  return Category(
+                    product: _products[index],
+                    category: category,
+                  );
+                },
               ),
             ),
             Row(

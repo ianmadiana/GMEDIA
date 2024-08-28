@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models/category_model.dart';
+import '../models/product_model.dart';
 
 class ApiServices {
   ApiServices(this._token);
@@ -61,5 +62,26 @@ class ApiServices {
     } catch (e) {
       print('Error $e');
     }
+  }
+
+  // GET ALL PRODUCT
+  Future<List<ProductModel>> getAllProduct() async {
+    String url = '$baseUrl/product';
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $_token',
+    };
+
+    try {
+      final response = await http.get(Uri.parse(url), headers: headers);
+
+      if (response.statusCode == 200) {
+        print('Response ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Errpr $e');
+    }
+    return [];
   }
 }

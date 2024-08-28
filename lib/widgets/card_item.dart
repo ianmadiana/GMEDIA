@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:maspos/models/product_model.dart';
 
 class CardItem extends StatelessWidget {
   const CardItem({
     super.key,
+    // required this.product,
+    // required this.product,
+    // required this.imageUrl,
+    // required this.productName,
+    // required this.price,
   });
+
+  // final String imageUrl;
+  // final String productName;
+  // final int price;
+
+  // final ProductModel product;
 
   @override
   Widget build(BuildContext context) {
@@ -11,12 +23,13 @@ class CardItem extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       child: Column(
         children: [
-          Image.network(
-            'https://images.unsplash.com/photo-1698311234768-a8d46e5f2340?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-            height: 180,
-            width: 200,
-            fit: BoxFit.cover,
-          ),
+          // Image.network(
+          //   product.pictureUrl,
+          //   height: 180,
+          //   width: 200,
+          //   fit: BoxFit.cover,
+          // ),
+          FlutterLogo(),
           const SizedBox(height: 5),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -27,7 +40,7 @@ class CardItem extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Product Name 1'),
+                    Text('Data'),
                     const SizedBox(width: 45),
                     TextButton(
                       onPressed: () {},
@@ -53,15 +66,15 @@ class CardItem extends StatelessWidget {
                   ],
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.only(left: 5, right: 5),
+              Padding(
+                padding: const EdgeInsets.only(left: 5, right: 5),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Rp. 10.000',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      'Data',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
