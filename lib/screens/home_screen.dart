@@ -162,7 +162,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Text('Add Product'),
                       const SizedBox(height: 20),
                       // PRODUCT IMAGE
-                      const TextFormFieldCustom(title: 'Product Image'),
+                      const TextFormFieldCustom(
+                          title: 'Product Image',
+                          uploadImg: Icons.cloud_upload_outlined),
                       const SizedBox(height: 20),
                       // PRODUCT NAME
                       const TextFormFieldCustom(title: 'Product Name'),

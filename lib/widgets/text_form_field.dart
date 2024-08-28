@@ -5,9 +5,11 @@ class TextFormFieldCustom extends StatelessWidget {
     super.key,
     required this.title,
     this.controller,
+    this.uploadImg,
   });
 
   final String title;
+  final IconData? uploadImg;
   final TextEditingController? controller;
 
   @override
@@ -20,6 +22,7 @@ class TextFormFieldCustom extends StatelessWidget {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
         ),
+        suffixIcon: IconButton(onPressed: () {}, icon: Icon(uploadImg)),
       ),
       validator: (value) => value!.isEmpty ? "Masukkan kategori" : null,
     );
