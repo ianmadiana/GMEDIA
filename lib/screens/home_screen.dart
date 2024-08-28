@@ -1,18 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:maspos/screens/login_screen.dart';
+import 'package:maspos/services/api_service.dart';
 
+import '../models/category_model.dart';
+import '../widgets/add_button.dart';
 import '../widgets/category.dart';
+import '../widgets/custom_button.dart';
 import '../widgets/text_form_field.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.token});
+
+  final String token;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late ApiServices _apiServices;
+  List<CategoryModel> _categories = [];
   final _formKey = GlobalKey<FormState>();
+  String? _selectedCategoryId;
+
+  @override
+  void initState() {
+    _apiServices = ApiServices(widget.token);
+    _loadCategories();
+    super.initState();
+  }
+
+  Future<void> _loadCategories() async {
+    final categories = await _apiServices.getCategories();
+    setState(() {
+      _categories = categories;
+    });
+  }
+
   void _logout() {
     Navigator.pushReplacement(
         context,
@@ -22,24 +46,73 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _addCategory() {
+    final categoryController = TextEditingController();
+
     showModalBottomSheet(
       context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Column(children: [
-          Form(
-            key: _formKey,
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Column(
               children: [
-                Text('Add Category'),
-                SizedBox(height: 20),
-                TextFormFieldCustom(title: 'Category Name')
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Add Category'),
+                      const SizedBox(height: 20),
+                      // PRODUCT IMAGE
+                      TextFormFieldCustom(
+                        title: 'Category Product',
+                        controller: categoryController,
+                      ),
+                      const SizedBox(height: 20),
+                      // const CustomButton(title: 'Tambah', onPressed: null),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                                Theme.of(context).colorScheme.primary),
+                          ),
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              try {
+                                await _apiServices
+                                    .addCategory(categoryController.text);
+                                await _loadCategories();
+                                Navigator.pop(context);
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text('Failed to add category: $e')),
+                                );
+                              }
+                            }
+                          },
+                          child: Text(
+                            'Tambah',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-        ]),
+        ),
       ),
     );
   }
@@ -47,34 +120,69 @@ class _HomeScreenState extends State<HomeScreen> {
   void _addProduct() {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Column(children: [
-          Form(
-            key: _formKey,
-            child: const SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Add Product'),
-                  SizedBox(height: 20),
-                  // PRODUCT IMAGE
-                  TextFormFieldCustom(title: 'Category Product'),
-                  SizedBox(height: 20),
-                  // PRODUCT NAME
-                  TextFormFieldCustom(title: 'Product Name'),
-                  SizedBox(height: 20),
-                  // PRICE
-                  TextFormFieldCustom(title: 'Price'),
-                  SizedBox(height: 20),
-                  // CATEGORY
-                  TextFormFieldCustom(title: 'Category')
-                ],
-              ),
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.8,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Column(
+              children: [
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Add Product'),
+                      const SizedBox(height: 20),
+                      // PRODUCT IMAGE
+                      const TextFormFieldCustom(title: 'Product Image'),
+                      const SizedBox(height: 20),
+                      // PRODUCT NAME
+                      const TextFormFieldCustom(title: 'Product Name'),
+                      const SizedBox(height: 20),
+                      // PRICE
+                      const TextFormFieldCustom(title: 'Price'),
+                      const SizedBox(height: 20),
+                      // CATEGORY
+                      SizedBox(
+                        child: DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Select Item',
+                          ),
+                          value: _selectedCategoryId,
+                          items: _categories.map(
+                            (category) {
+                              return DropdownMenuItem(
+                                value: category.id,
+                                child: Text(category.name),
+                              ); 
+                            },
+                          ).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCategoryId = value;
+                            });
+                            print('Selected value ID: $value');
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                      const CustomButton(title: 'Tambah'),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-        ]),
+        ),
       ),
     );
   }
@@ -107,54 +215,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            Column(
+            Row(
               children: [
                 // + ADD CATEGORY
-                SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: ElevatedButton(
-                    onPressed: _addCategory,
-                    style: ButtonStyle(
-                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: BorderSide(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      '+ Add Category',
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 5),
+                AddButton(title: '+ Add Category', onPressed: _addCategory),
+                const SizedBox(width: 10),
                 // ADD PRODUCT
-                SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: ElevatedButton(
-                    onPressed: _addProduct,
-                    style: ButtonStyle(
-                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: BorderSide(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      '+ Add Product',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                ),
+                AddButton(title: '+ Add Product', onPressed: _addProduct),
               ],
             )
           ],

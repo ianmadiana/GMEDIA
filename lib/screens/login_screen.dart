@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 
 import '../widgets/wave_bg.dart';
 import 'home_screen.dart';
@@ -20,11 +20,13 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
 
-  void _goToHomeScreen() {
+  void _goToHomeScreen(String token) {
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
+          builder: (context) => HomeScreen(
+            token: token,
+          ),
         ));
   }
 
@@ -54,20 +56,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login(String email, String password) async {
     try {
-      Response response = await post(
-          Uri.parse('https://mas-pos.appmedia.id/api/v1/login'),
-          body: {
-            'email': 'admin@example.com',
-            'password': 'secret',
-          });
+      var response = await http
+          .post(Uri.parse('https://mas-pos.appmedia.id/api/v1/login'), body: {
+        'email': 'admin@example.com',
+        'password': 'secret',
+      });
 
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body.toString());
 
-        var token = responseData['data'];
-
+        var token = responseData['data']['token'];
         if (token != null) {
-          _goToHomeScreen();
+          _goToHomeScreen(token);
         }
       } else if (response.statusCode == 400) {
         _popUpDialog();
