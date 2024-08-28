@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:maspos/models/product_model.dart';
 import 'package:maspos/screens/login_screen.dart';
 import 'package:maspos/services/api_service.dart';
@@ -20,8 +21,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late ApiServices _apiServices;
-  List<CategoryModel> _categories = [];
   List<ProductModel> _products = [];
+  List<CategoryModel> _categories = [];
   final _formKey = GlobalKey<FormState>();
   String? _selectedCategoryId;
 
@@ -33,18 +34,28 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
-  Future<void> _loadCategories() async {
-    final categories = await _apiServices.getCategories();
-    setState(() {
-      _categories = categories;
-    });
+  Future<void> _loadProducts() async {
+    try {
+      final products = await _apiServices.getAllProduct();
+      // print('Products loaded: ${products.length}');
+      setState(() {
+        _products = products;
+      });
+    } catch (e) {
+      // print('Failed to load products: $e');
+    }
   }
 
-  Future<void> _loadProducts() async {
-    final products = await _apiServices.getAllProduct();
-    setState(() {
-      _products = products;
-    });
+  Future<void> _loadCategories() async {
+    try {
+      final categories = await _apiServices.getCategories();
+      //  print('categories loaded: ${categories.length}');
+      setState(() {
+        _categories = categories;
+      });
+    } catch (e) {
+      // print('Failed to load products: $e');
+    }
   }
 
   void _logout() {
@@ -201,14 +212,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MASPOS'),
+        title: Text(
+          'MASPOS',
+          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
         actions: [
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.search),
           ),
           const Icon(Icons.shopping_cart_outlined),
-          IconButton(onPressed: _logout, icon: const Icon(Icons.logout))
+          IconButton(onPressed: _logout, icon: const Icon(Icons.logout)),
         ],
       ),
       body: Padding(
@@ -216,16 +230,21 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                itemCount: _categories.length,
-                itemBuilder: (context, index) {
-                  final category = _categories[index];
-                  return Category(
-                    product: _products[index],
-                    category: category,
-                  );
-                },
-              ),
+              child: _products.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      itemCount: _categories.length,
+                      itemBuilder: (context, index) {
+                        final category = _categories[index];
+                        final productsInCategory = _products
+                            .where(
+                                (product) => product.categoryId == category.id)
+                            .toList();
+
+                        return Category(
+                            category: category, products: productsInCategory);
+                      },
+                    ),
             ),
             Row(
               children: [
@@ -235,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // ADD PRODUCT
                 AddButton(title: '+ Add Product', onPressed: _addProduct),
               ],
-            )
+            ),
           ],
         ),
       ),

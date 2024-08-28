@@ -64,24 +64,31 @@ class ApiServices {
     }
   }
 
-  // GET ALL PRODUCT
+  // GET PRODUCTS
   Future<List<ProductModel>> getAllProduct() async {
-    String url = '$baseUrl/product';
+  String url = '$baseUrl/product';
 
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $_token',
-    };
+  final headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $_token',
+  };
 
-    try {
-      final response = await http.get(Uri.parse(url), headers: headers);
+  try {
+    final response = await http.get(Uri.parse(url), headers: headers);
 
-      if (response.statusCode == 200) {
-        print('Response ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Errpr $e');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print('Data received: ${data.toString()}');
+      List<dynamic> productsJson = data['data'];
+      return productsJson
+          .map((product) => ProductModel.fromJson(product))
+          .toList();
+    } else {
+      throw Exception('Failed to load products');
     }
+  } catch (e) {
+    print('Error $e');
     return [];
   }
+}
 }

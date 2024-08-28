@@ -1,36 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:maspos/models/product_model.dart';
 
 class CardItem extends StatelessWidget {
   const CardItem({
     super.key,
-    // required this.product,
-    // required this.product,
-    // required this.imageUrl,
-    // required this.productName,
-    // required this.price,
+    required this.product,
   });
 
-  // final String imageUrl;
-  // final String productName;
-  // final int price;
-
-  // final ProductModel product;
+  final ProductModel product;
 
   @override
   Widget build(BuildContext context) {
+    final formatter = NumberFormat('#,##0');
+    final formattedPrice = formatter.format(product.price);
+
     return Card(
       clipBehavior: Clip.hardEdge,
       child: Column(
         children: [
-          // Image.network(
-          //   product.pictureUrl,
-          //   height: 180,
-          //   width: 200,
-          //   fit: BoxFit.cover,
-          // ),
-          FlutterLogo(),
-          const SizedBox(height: 5),
+          Image.network(
+            product.pictureUrl,
+            height: 130,
+            width: 220,
+            fit: BoxFit.fitWidth,
+          ),
+          const SizedBox(height: 20),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +36,17 @@ class CardItem extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Data'),
+                    SizedBox(
+                      height: 50,
+                      width: 120,
+                      child: Text(
+                        product.name,
+                        style: GoogleFonts.rubik(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: 45),
                     TextButton(
                       onPressed: () {},
@@ -73,8 +79,9 @@ class CardItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Data',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      'Rp. $formattedPrice',
+                      style: GoogleFonts.rubik(
+                          fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),

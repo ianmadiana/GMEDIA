@@ -1,37 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:maspos/models/category_model.dart';
 import 'package:maspos/models/product_model.dart';
-
-import 'card_item.dart';
+import 'package:maspos/widgets/card_item.dart';
 
 class Category extends StatelessWidget {
+  final CategoryModel category;
+  final List<ProductModel> products;
+
   const Category({
     super.key,
-    // required this.categoryName,
-    required this.category, required ProductModel product,
-    // required this.product,
-    // required this.product,
+    required this.category,
+    required this.products,
   });
-
-  // final String categoryName;
-  final CategoryModel category;
-  // final ProductModel product;
 
   @override
   Widget build(BuildContext context) {
-    print("Rendering category: ${category.name}");
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(category.name),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(children: [
-            CardItem(
-              // product: product,
-            )
-          ]),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            category.name,
+            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+        ),
+        SizedBox(
+          height: 300,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: CardItem(product: products[index]),
+              );
+            },
+          ),
         ),
       ],
     );

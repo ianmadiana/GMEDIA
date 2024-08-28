@@ -17,7 +17,6 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 0, 111, 253),
           brightness: Brightness.light,
-          // surface: Color.fromARGB(255, 0, 136, 255),
         ),
       ),
       home: const LoginScreen(),
