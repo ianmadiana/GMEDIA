@@ -39,7 +39,7 @@ class _CardItemState extends State<CardItem> {
       child: Column(
         children: [
           Image.network(
-            widget.product.pictureUrl,
+            widget.product.pictureUrl!,
             height: 130,
             width: 220,
             fit: BoxFit.fitWidth,
@@ -69,7 +69,7 @@ class _CardItemState extends State<CardItem> {
                     TextButton(
                       onPressed: () async {
                         await ApiServices(widget.token)
-                            .deleteProduct(widget.product.id);
+                            .deleteProduct(widget.product.id!);
                         setState(() {
                           widget.onLoad();
                         });

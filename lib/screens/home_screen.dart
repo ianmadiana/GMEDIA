@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:maspos/models/product_model.dart';
 import 'package:maspos/screens/login_screen.dart';
 import 'package:maspos/services/api_service.dart';
@@ -25,6 +26,13 @@ class _HomeScreenState extends State<HomeScreen> {
   List<CategoryModel> _categories = [];
   final _formKey = GlobalKey<FormState>();
   String? _selectedCategoryId;
+  XFile? _selectedImage;
+
+  TextEditingController productNameC = TextEditingController();
+  TextEditingController productPriceC = TextEditingController();
+
+  String _enteredProductName = '';
+  int _enteredProductPrice = 0;
 
   @override
   void initState() {
@@ -32,6 +40,41 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadCategories();
     _loadProducts();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    productNameC.dispose();
+    productPriceC.dispose();
+    super.dispose();
+  }
+
+  void _saveItem(ProductModel product) {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      try {
+        print('Nama produk : ${product.name}');
+        print('Harga : ${product.price}');
+        print('Kategori ID : ${product.categoryId}');
+        productNameC.clear();
+        productPriceC.clear();
+      } catch (e) {
+        print('Error : $e');
+      }
+    }
+  }
+
+  void _handleFileUpload() async {
+    // Pick an image
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedImage =
+        await picker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      setState(() {
+        _selectedImage = pickedImage;
+      });
+      print(_selectedImage!.name);
+    }
   }
 
   Future<void> _loadProducts() async {
@@ -49,7 +92,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadCategories() async {
     try {
       final categories = await _apiServices.getCategories();
-      //  print('categories loaded: ${categories.length}');
       setState(() {
         _categories = categories;
       });
@@ -138,6 +180,156 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // void _addProduct() {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     builder: (context) => DraggableScrollableSheet(
+  //       initialChildSize: 0.8,
+  //       minChildSize: 0.4,
+  //       maxChildSize: 0.9,
+  //       expand: false,
+  //       builder: (context, scrollController) => Padding(
+  //         padding: const EdgeInsets.all(30.0),
+  //         child: SingleChildScrollView(
+  //           controller: scrollController,
+  //           child: Column(
+  //             children: [
+  //               Form(
+  //                 key: _formKey,
+  //                 child: Column(
+  //                   mainAxisAlignment: MainAxisAlignment.start,
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     const Text('Add Product'),
+  //                     const SizedBox(height: 20),
+  //                     // PRODUCT IMAGE
+  //                     // const TextFormFieldCustom(
+  //                     //   title: 'Product Image',
+  //                     //   uploadImg: Icons.cloud_upload_outlined,
+  //                     // ),
+  //                     TextFormField(
+  //                       // controller: widget.controller,
+  //                       // initialValue:
+  //                       decoration: InputDecoration(
+  //                         filled: true,
+  //                         hintText: 'Masukkan gambar',
+  //                         border: OutlineInputBorder(
+  //                           borderRadius: BorderRadius.circular(20),
+  //                         ),
+  //                         suffixIcon: IconButton(
+  //                             onPressed: _handleFileUpload,
+  //                             icon: const Icon(Icons.cloud_upload_outlined)),
+  //                       ),
+  //                       validator: (value) =>
+  //                           value!.isEmpty ? "Masukkan kategori" : null,
+  //                       onSaved: (newValue) {
+  //                         setState(() {
+  //                           // newValue = widget.enteredProductName!.text;
+  //                         });
+  //                       },
+  //                     ),
+
+  //                     const SizedBox(height: 20),
+  //                     // PRODUCT NAME
+  //                     // TextFormFieldCustom(
+  //                     //   title: 'Product Name',
+  //                     //   enteredProductName: productNameC,
+  //                     // ),
+  //                     TextFormField(
+  //                       controller: productNameC,
+  //                       decoration: InputDecoration(
+  //                         filled: true,
+  //                         hintText: 'Masukkan nama produk',
+  //                         border: OutlineInputBorder(
+  //                           borderRadius: BorderRadius.circular(20),
+  //                         ),
+  //                       ),
+  //                       validator: (value) =>
+  //                           value!.isEmpty ? "Masukkan nama produk" : null,
+  //                       onSaved: (newValue) {
+  //                         setState(() {
+  //                           _enteredProductName = newValue!;
+  //                         });
+  //                       },
+  //                     ),
+  //                     const SizedBox(height: 20),
+  //                     // PRICE
+  //                     // TextFormFieldCustom(
+  //                     //   title: 'Price',
+  //                     //   enteredPrice: productPriceC,
+  //                     // ),
+  //                     TextFormField(
+  //                       controller: productPriceC,
+  //                       keyboardType: TextInputType.number,
+  //                       decoration: InputDecoration(
+  //                         filled: true,
+  //                         hintText: 'Masukkan harga produk',
+  //                         border: OutlineInputBorder(
+  //                           borderRadius: BorderRadius.circular(20),
+  //                         ),
+  //                       ),
+  //                       validator: (value) =>
+  //                           value!.isEmpty ? "Masukkan harga produk" : null,
+  //                       onSaved: (newValue) {
+  //                         setState(() {
+  //                           _enteredProductPrice = int.parse(newValue!);
+  //                         });
+  //                       },
+  //                     ),
+  //                     const SizedBox(height: 20),
+  //                     // CATEGORY
+  //                     SizedBox(
+  //                       child: DropdownButtonFormField<String>(
+  //                         decoration: const InputDecoration(
+  //                           border: OutlineInputBorder(),
+  //                           labelText: 'Select Item',
+  //                         ),
+  //                         value: _selectedCategoryId,
+  //                         items: _categories.map(
+  //                           (category) {
+  //                             return DropdownMenuItem(
+  //                               value: category.id,
+  //                               child: Text(category.name),
+  //                             );
+  //                           },
+  //                         ).toList(),
+  //                         onChanged: (value) {
+  //                           setState(() {
+  //                             _selectedCategoryId = value;
+  //                           });
+  //                           print('Selected value ID: $value');
+  //                         },
+  //                       ),
+  //                     ),
+
+  //                     const SizedBox(height: 20),
+  //                     CustomButton(
+  //                       title: 'Tambah',
+  //                       onPressed: () {
+  //                         _saveItem(
+  //                           ProductModel(
+  //                             categoryId: _selectedCategoryId!,
+  //                             name: _enteredProductName,
+  //                             price: _enteredProductPrice,
+  //                             // pictureUrl: pictureUrl,
+  //                             // createdAt: createdAt,
+  //                           ),
+  //                         );
+  //                         Navigator.pop(context);
+  //                       },
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
   void _addProduct() {
     showModalBottomSheet(
       context: context,
@@ -162,15 +354,59 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Text('Add Product'),
                       const SizedBox(height: 20),
                       // PRODUCT IMAGE
-                      const TextFormFieldCustom(
-                          title: 'Product Image',
-                          uploadImg: Icons.cloud_upload_outlined),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          filled: true,
+                          hintText: 'Masukkan gambar',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          suffixIcon: IconButton(
+                            onPressed: _handleFileUpload,
+                            icon: const Icon(Icons.cloud_upload_outlined),
+                          ),
+                        ),
+                        validator: (value) =>
+                            value!.isEmpty ? "Masukkan gambar" : null,
+                      ),
                       const SizedBox(height: 20),
                       // PRODUCT NAME
-                      const TextFormFieldCustom(title: 'Product Name'),
+                      TextFormField(
+                        controller: productNameC,
+                        decoration: InputDecoration(
+                          filled: true,
+                          hintText: 'Masukkan nama produk',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        validator: (value) =>
+                            value!.isEmpty ? "Masukkan nama produk" : null,
+                        onSaved: (newValue) {
+                          print(
+                              'Nama produk disimpan: $newValue'); // Debugging print
+                          _enteredProductName = newValue!;
+                        },
+                      ),
                       const SizedBox(height: 20),
                       // PRICE
-                      const TextFormFieldCustom(title: 'Price'),
+                      TextFormField(
+                        controller: productPriceC,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          filled: true,
+                          hintText: 'Masukkan harga produk',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        validator: (value) =>
+                            value!.isEmpty ? "Masukkan harga produk" : null,
+                        onSaved: (newValue) {
+                          print('Harga disimpan: $newValue'); // Debugging print
+                          _enteredProductPrice = int.parse(newValue!);
+                        },
+                      ),
                       const SizedBox(height: 20),
                       // CATEGORY
                       SizedBox(
@@ -196,9 +432,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                         ),
                       ),
-
                       const SizedBox(height: 20),
-                      const CustomButton(title: 'Tambah'),
+                      CustomButton(
+                        title: 'Tambah',
+                        onPressed: () {
+                          _formKey.currentState!.save(); // Ensure data is saved
+                          _saveItem(
+                            ProductModel(
+                              categoryId: _selectedCategoryId!,
+                              name: _enteredProductName,
+                              price: _enteredProductPrice,
+                              pictureUrl: _selectedImage?.path ?? '',
+                            ),
+                          );
+                          Navigator.pop(context);
+                        },
+                      ),
                     ],
                   ),
                 ),

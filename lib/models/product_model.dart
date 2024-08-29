@@ -1,18 +1,18 @@
 class ProductModel {
-  final String id;
+  final String? id;
   final String categoryId;
   final String name;
   final int price;
-  final String pictureUrl;
-  final String createdAt;
+  final String? pictureUrl;
+  final String? createdAt;
 
   ProductModel({
-    required this.id,
+    this.id,
     required this.categoryId,
     required this.name,
     required this.price,
-    required this.pictureUrl,
-    required this.createdAt,
+    this.pictureUrl,
+    this.createdAt,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
