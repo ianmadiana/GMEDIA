@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:maspos/models/product_model.dart';
 import 'package:maspos/services/api_service.dart';
+import 'package:riverpod/riverpod.dart';
 
-class CardItem extends StatefulWidget {
+import '../models/cart_item_model.dart';
+import '../services/cart_notifier.dart';
+
+class CardItem extends ConsumerWidget {
   const CardItem({
     super.key,
     required this.product,
@@ -16,12 +21,7 @@ class CardItem extends StatefulWidget {
   final String token;
   final VoidCallback onLoad;
 
-  @override
-  State<CardItem> createState() => _CardItemState();
-}
-
-class _CardItemState extends State<CardItem> {
-  void _showDeleteSuccessMessage(String productName) {
+  void _showDeleteSuccessMessage(BuildContext context, String productName) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$productName deleted'),
@@ -30,16 +30,16 @@ class _CardItemState extends State<CardItem> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final formatter = NumberFormat('#,##0');
-    final formattedPrice = formatter.format(widget.product.price);
+    final formattedPrice = formatter.format(product.price);
 
     return Card(
       clipBehavior: Clip.hardEdge,
       child: Column(
         children: [
           Image.network(
-            widget.product.pictureUrl!,
+            product.pictureUrl,
             height: 130,
             width: 220,
             fit: BoxFit.fitWidth,
@@ -58,7 +58,7 @@ class _CardItemState extends State<CardItem> {
                       height: 50,
                       width: 120,
                       child: Text(
-                        widget.product.name,
+                        product.name,
                         style: GoogleFonts.rubik(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
@@ -68,12 +68,11 @@ class _CardItemState extends State<CardItem> {
                     const SizedBox(width: 45),
                     TextButton(
                       onPressed: () async {
-                        await ApiServices(widget.token)
-                            .deleteProduct(widget.product.id!);
-                        setState(() {
-                          widget.onLoad();
-                        });
-                        _showDeleteSuccessMessage(widget.product.name);
+                        await ApiServices(token).deleteProduct(product.id!);
+
+                        onLoad();
+
+                        _showDeleteSuccessMessage(context, product.name);
                       },
                       style: ButtonStyle(
                           shape:
@@ -118,7 +117,15 @@ class _CardItemState extends State<CardItem> {
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    final cartItem = CartItem(
+                      id: product.id!,
+                      name: product.name,
+                      price: product.price,
+                      quantity: 1,
+                    );
+                    ref.read(cartProvider.notifier).addProductToCart(cartItem);
+                  },
                   style: ButtonStyle(
                     shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(

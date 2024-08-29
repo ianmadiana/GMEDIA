@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:maspos/models/cart_item_model.dart';
 import 'package:maspos/models/product_model.dart';
+import 'package:maspos/screens/cart_screen.dart';
 import 'package:maspos/screens/login_screen.dart';
 import 'package:maspos/services/api_service.dart';
 
@@ -116,6 +118,14 @@ class _HomeScreenState extends State<HomeScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => const LoginScreen(),
+        ));
+  }
+
+  void _goToCart() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CartScreen(),
         ));
   }
 
@@ -344,7 +354,14 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {},
             icon: const Icon(Icons.search),
           ),
-          const Icon(Icons.shopping_cart_outlined),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.filter_alt_outlined),
+          ),
+          IconButton(
+            onPressed: _goToCart,
+            icon: Icon(Icons.shopping_cart_outlined),
+          ),
           IconButton(onPressed: _logout, icon: const Icon(Icons.logout)),
         ],
       ),
