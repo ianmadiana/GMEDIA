@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../models/category_model.dart';
 import '../models/product_model.dart';
@@ -64,6 +65,41 @@ class ApiServices {
     }
   }
 
+  // ADD PRODUCT
+  Future<void> addProduct(String productName, int productPrice,
+      String categoryId, String picturePath) async {
+    String url = 'https://mas-pos.appmedia.id/api/v1/product';
+
+    final headers = {'Authorization': 'Bearer $_token'};
+
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(url))
+        ..headers.addAll(headers)
+        ..fields['name'] = productName
+        ..fields['price'] = productPrice.toString()
+        ..fields['category_id'] = categoryId;
+
+      if (picturePath.isNotEmpty) {
+        var file = await http.MultipartFile.fromPath(
+          'picture_url',
+          picturePath,
+          contentType: MediaType('image', 'jpeg'),
+        );
+        request.files.add(file);
+      }
+
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        print('$productName berhasil ditambahkan');
+      } else {
+        print('Failed to add product ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   // GET PRODUCTS
   Future<List<ProductModel>> getAllProduct() async {
     String url = '$baseUrl/product';
@@ -91,6 +127,7 @@ class ApiServices {
     }
   }
 
+// DELETE PRODUCT
   Future<void> deleteProduct(String productId) async {
     String url = '$baseUrl/product/$productId';
 
@@ -105,7 +142,7 @@ class ApiServices {
       if (response.statusCode == 200) {
         print('Product $productId deleted');
       } else {
-        print('Failed to delete product');
+        print('Failed to delete product, status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error $e');
