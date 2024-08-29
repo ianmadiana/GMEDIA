@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../services/cart_notifier.dart';
 import '../widgets/add_button.dart';
@@ -16,6 +17,8 @@ class CartScreen extends ConsumerWidget {
       (sum, item) => sum + (item.price * item.quantity),
     );
 
+    final formatter = NumberFormat('#,##0');
+
     void showPopUpDialog() {
       showDialog(
         context: context,
@@ -26,7 +29,7 @@ class CartScreen extends ConsumerWidget {
               children: [
                 const Text('✅'),
                 const SizedBox(height: 20),
-                Text('Rp. ${cartTotal.toString()}'),
+                Text('Rp. ${formatter.format(cartTotal)}'),
               ],
             ),
           ),
@@ -60,7 +63,7 @@ class CartScreen extends ConsumerWidget {
                         final item = cartItems[index];
                         return Card(
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(10.0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,7 +72,10 @@ class CartScreen extends ConsumerWidget {
                                   onPressed: () {
                                     ref.read(cartProvider.notifier).clearCart();
                                   },
-                                  icon: const Icon(Icons.close),
+                                  icon: const Icon(
+                                    Icons.close,
+                                    color: Colors.red,
+                                  ),
                                 ),
                                 Row(
                                   mainAxisAlignment:
@@ -85,7 +91,7 @@ class CartScreen extends ConsumerWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text('PRICE'),
-                                    Text(item.price.toString()),
+                                    Text(formatter.format(item.price)),
                                   ],
                                 ),
                                 const SizedBox(height: 10),
@@ -114,8 +120,8 @@ class CartScreen extends ConsumerWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text('SUB TOTAL'),
-                                    Text((item.price * item.quantity)
-                                        .toString()),
+                                    Text(formatter
+                                        .format(item.price * item.quantity))
                                   ],
                                 ),
                               ],
@@ -139,7 +145,7 @@ class CartScreen extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          cartTotal.toString(),
+                          formatter.format(cartTotal),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -159,6 +165,7 @@ class CartScreen extends ConsumerWidget {
                       AddButton(
                         title: 'Pay Bill',
                         onPressed: showPopUpDialog,
+                        color: Colors.blue,
                       ),
                     ],
                   ),

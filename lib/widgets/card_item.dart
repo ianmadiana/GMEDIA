@@ -4,7 +4,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:maspos/models/product_model.dart';
 import 'package:maspos/services/api_service.dart';
-import 'package:riverpod/riverpod.dart';
 
 import '../models/cart_item_model.dart';
 import '../services/cart_notifier.dart';
@@ -21,10 +20,11 @@ class CardItem extends ConsumerWidget {
   final String token;
   final VoidCallback onLoad;
 
-  void _showDeleteSuccessMessage(BuildContext context, String productName) {
+  void _showSnackBarMessage(
+      BuildContext context, String productName, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$productName deleted'),
+        content: Text('$productName ' '$message'),
       ),
     );
   }
@@ -72,7 +72,7 @@ class CardItem extends ConsumerWidget {
 
                         onLoad();
 
-                        _showDeleteSuccessMessage(context, product.name);
+                        _showSnackBarMessage(context, product.name, 'deleted');
                       },
                       style: ButtonStyle(
                           shape:
@@ -125,6 +125,8 @@ class CardItem extends ConsumerWidget {
                       quantity: 1,
                     );
                     ref.read(cartProvider.notifier).addProductToCart(cartItem);
+                    _showSnackBarMessage(
+                        context, product.name, 'added to cart');
                   },
                   style: ButtonStyle(
                     shape: WidgetStateProperty.all<RoundedRectangleBorder>(

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 class AddButton extends StatelessWidget {
-  const AddButton({
+  AddButton({
     super.key,
     required this.title,
     this.onPressed,
+    this.color,
   });
 
   final String title;
   final VoidCallback? onPressed;
+  Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -17,15 +19,15 @@ class AddButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onPressed,
           style: ButtonStyle(
-            shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.onSurface,
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
-            ),
-          ),
+              backgroundColor: WidgetStateProperty.all(color)),
           child: Text(
             title,
             style: TextStyle(
