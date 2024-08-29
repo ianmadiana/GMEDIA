@@ -341,6 +341,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _sortProductsByPriceAscending() {
+    setState(() {
+      _products.sort((a, b) => a.price.compareTo(b.price));
+    });
+  }
+
+  void _sortProductsByPriceDescending() {
+    setState(() {
+      _products.sort((a, b) => b.price.compareTo(a.price));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -355,12 +367,37 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.search),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return SimpleDialog(
+                    title: const Text('Filter by Price'),
+                    children: [
+                      SimpleDialogOption(
+                        onPressed: () {
+                          _sortProductsByPriceAscending();
+                          Navigator.pop(context); // Tutup dialog
+                        },
+                        child: const Text('Lowest Price'),
+                      ),
+                      SimpleDialogOption(
+                        onPressed: () {
+                          _sortProductsByPriceDescending();
+                          Navigator.pop(context); // Tutup dialog
+                        },
+                        child: const Text('Highest Price'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
             icon: const Icon(Icons.filter_alt_outlined),
           ),
           IconButton(
             onPressed: _goToCart,
-            icon: Icon(Icons.shopping_cart_outlined),
+            icon: const Icon(Icons.shopping_cart_outlined),
           ),
           IconButton(onPressed: _logout, icon: const Icon(Icons.logout)),
         ],

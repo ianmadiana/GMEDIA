@@ -21,7 +21,7 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
     } else {
       state = [
         ...state,
-        item.copyWith(quantity: 1), 
+        item.copyWith(quantity: 1),
       ];
     }
   }
