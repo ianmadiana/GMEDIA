@@ -66,29 +66,49 @@ class ApiServices {
 
   // GET PRODUCTS
   Future<List<ProductModel>> getAllProduct() async {
-  String url = '$baseUrl/product';
+    String url = '$baseUrl/product';
 
-  final headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $_token',
-  };
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $_token',
+    };
 
-  try {
-    final response = await http.get(Uri.parse(url), headers: headers);
+    try {
+      final response = await http.get(Uri.parse(url), headers: headers);
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      print('Data received: ${data.toString()}');
-      List<dynamic> productsJson = data['data'];
-      return productsJson
-          .map((product) => ProductModel.fromJson(product))
-          .toList();
-    } else {
-      throw Exception('Failed to load products');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        List<dynamic> productsJson = data['data'];
+        return productsJson
+            .map((product) => ProductModel.fromJson(product))
+            .toList();
+      } else {
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      print('Error $e');
+      return [];
     }
-  } catch (e) {
-    print('Error $e');
-    return [];
   }
-}
+
+  Future<void> deleteProduct(String productId) async {
+    String url = '$baseUrl/product/$productId';
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $_token',
+    };
+
+    try {
+      final response = await http.delete(Uri.parse(url), headers: headers);
+
+      if (response.statusCode == 200) {
+        print('Product $productId deleted');
+      } else {
+        print('Failed to delete product');
+      }
+    } catch (e) {
+      print('Error $e');
+    }
+  }
 }

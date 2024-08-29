@@ -244,7 +244,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             .toList();
 
                         return Category(
-                            category: category, products: productsInCategory);
+                          category: category,
+                          products: productsInCategory,
+                          token: widget.token,
+                          onLoad: _loadProducts,
+                        );
                       },
                     ),
             ),

@@ -2,26 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:maspos/models/product_model.dart';
+import 'package:maspos/services/api_service.dart';
 
-class CardItem extends StatelessWidget {
+class CardItem extends StatefulWidget {
   const CardItem({
     super.key,
     required this.product,
+    required this.token,
+    required this.onLoad,
   });
 
   final ProductModel product;
+  final String token;
+  final VoidCallback onLoad;
+
+  @override
+  State<CardItem> createState() => _CardItemState();
+}
+
+class _CardItemState extends State<CardItem> {
+  void _showDeleteSuccessMessage(String productName) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$productName deleted'),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat('#,##0');
-    final formattedPrice = formatter.format(product.price);
+    final formattedPrice = formatter.format(widget.product.price);
 
     return Card(
       clipBehavior: Clip.hardEdge,
       child: Column(
         children: [
           Image.network(
-            product.pictureUrl,
+            widget.product.pictureUrl,
             height: 130,
             width: 220,
             fit: BoxFit.fitWidth,
@@ -40,7 +58,7 @@ class CardItem extends StatelessWidget {
                       height: 50,
                       width: 120,
                       child: Text(
-                        product.name,
+                        widget.product.name,
                         style: GoogleFonts.rubik(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
@@ -49,7 +67,14 @@ class CardItem extends StatelessWidget {
                     ),
                     const SizedBox(width: 45),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        await ApiServices(widget.token)
+                            .deleteProduct(widget.product.id);
+                        setState(() {
+                          widget.onLoad();
+                        });
+                        _showDeleteSuccessMessage(widget.product.name);
+                      },
                       style: ButtonStyle(
                           shape:
                               WidgetStateProperty.all<RoundedRectangleBorder>(

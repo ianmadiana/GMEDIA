@@ -5,14 +5,17 @@ import 'package:maspos/models/product_model.dart';
 import 'package:maspos/widgets/card_item.dart';
 
 class Category extends StatelessWidget {
-  final CategoryModel category;
-  final List<ProductModel> products;
-
   const Category({
     super.key,
     required this.category,
     required this.products,
+    required this.token,
+    required this.onLoad,
   });
+  final CategoryModel category;
+  final List<ProductModel> products;
+  final String token;
+  final VoidCallback onLoad;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +37,11 @@ class Category extends StatelessWidget {
             itemBuilder: (context, index) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: CardItem(product: products[index]),
+                child: CardItem(
+                  product: products[index],
+                  token: token,
+                  onLoad: onLoad,
+                ),
               );
             },
           ),
