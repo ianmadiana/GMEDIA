@@ -347,7 +347,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               price: _enteredProductPrice,
                               pictureUrl: _selectedImage!.path,
                             );
+
                             _saveItem(product);
+                            _showSnackBarMessage(
+                                context, _enteredProductName, ' added');
                             Navigator.pop(context);
                           },
                         ),
