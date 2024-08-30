@@ -264,7 +264,17 @@ class CartScreen extends ConsumerWidget {
                     children: [
                       AddButton(
                         title: 'Back to Home',
-                        onPressed: goToHomeScreen,
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HomeScreen(
+                                token: token,
+                              ),
+                            ),
+                            (route) => false,
+                          );
+                        },
                       ),
                       const SizedBox(width: 10),
                       AddButton(
