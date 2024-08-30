@@ -1,47 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
+import 'package:maspos/screens/home_screen.dart';
 
 import '../services/cart_notifier.dart';
 import '../widgets/add_button.dart';
 
 class CartScreen extends ConsumerWidget {
-  const CartScreen({super.key});
+  const CartScreen(this.token, {super.key});
+
+  final String token;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cartItems = ref.watch(cartProvider);
 
+    // CART TOTAL
     final cartTotal = cartItems.fold<double>(
       0.0,
       (sum, item) => sum + (item.price * item.quantity),
     );
 
-    final formatter = NumberFormat('#,##0');
+    final formatter = NumberFormat('#,##0', 'id_ID');
+
+    void goToHomeScreen() {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(
+            token: token,
+          ),
+        ),
+        (route) => false,
+      );
+      ref.read(cartProvider.notifier).clearCart();
+    }
 
     void showPopUpDialog() {
       showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (context) => AlertDialog(
+          title: const Text(
+            'Payment Successfully',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: SizedBox(
-            height: 100,
+            height: 300,
             child: Column(
               children: [
-                const Text('✅'),
+                Lottie.asset('assets/lottie/payment-success.json'),
+                Text(
+                  'Rp. ${formatter.format(cartTotal)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
                 const SizedBox(height: 20),
-                Text('Rp. ${formatter.format(cartTotal)}'),
+                AddButton(
+                  title: 'Back to Home',
+                  bgButtonColor: Colors.blue,
+                  onPressed: goToHomeScreen,
+                  bgTextColor: Colors.white,
+                )
               ],
             ),
           ),
-          title: const Text('Payment Successfully'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
-            ),
-          ],
         ),
       );
     }
@@ -51,7 +79,20 @@ class CartScreen extends ConsumerWidget {
         title: const Text('Cart'),
       ),
       body: cartItems.isEmpty
-          ? const Center(child: Text('Cart is empty'))
+          ? Column(
+              children: [
+                Center(
+                  child: SizedBox(
+                    height: 300,
+                    child: Lottie.asset('assets/lottie/empty-cart.json',
+                        fit: BoxFit.fitHeight),
+                  ),
+                ),
+                const Center(
+                  child: Text('Cart is empty'),
+                ),
+              ],
+            )
           : Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
@@ -69,59 +110,124 @@ class CartScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 IconButton(
-                                  onPressed: () {
-                                    ref.read(cartProvider.notifier).clearCart();
-                                  },
+                                  onPressed: () => ref
+                                      .read(cartProvider.notifier)
+                                      .removeProductFromCart(item.id),
                                   icon: const Icon(
                                     Icons.close,
                                     color: Colors.red,
                                   ),
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('PRODUCT'),
-                                    Text(item.name),
-                                  ],
-                                ),
+                                const Divider(),
                                 const SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text('PRICE'),
-                                    Text(formatter.format(item.price)),
+                                    const Text(
+                                      'PRODUCT',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        item.name,
+                                        softWrap: true,
+                                        overflow: TextOverflow.visible,
+                                        textAlign: TextAlign.right,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
+                                const SizedBox(height: 10),
+                                const Divider(),
                                 const SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text('QUANTITY'),
+                                    const Text(
+                                      'PRICE',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Rp. ${formatter.format(item.price)}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                const Divider(),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'QUANTITY',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
                                     Row(
                                       children: [
                                         IconButton(
-                                          onPressed: () {},
+                                          onPressed: () => ref
+                                              .read(cartProvider.notifier)
+                                              .decreaseQuantity(item.id),
                                           icon: const Icon(Icons.remove),
                                         ),
-                                        Text(item.quantity.toString()),
+                                        Text(
+                                          item.quantity.toString(),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
                                         IconButton(
-                                          onPressed: () {},
+                                          onPressed: () => ref
+                                              .read(cartProvider.notifier)
+                                              .increaseQuantity(item.id),
                                           icon: const Icon(Icons.add),
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
+                                const SizedBox(height: 10),
+                                const Divider(),
+                                const SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text('SUB TOTAL'),
-                                    Text(formatter
-                                        .format(item.price * item.quantity))
+                                    const Text(
+                                      'SUB TOTAL',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Rp. ${formatter.format(item.price * item.quantity)}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    )
                                   ],
                                 ),
                               ],
@@ -131,7 +237,6 @@ class CartScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                  // Menambahkan total cart
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: Row(
@@ -145,7 +250,7 @@ class CartScreen extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          formatter.format(cartTotal),
+                          'Rp. ${formatter.format(cartTotal)}',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -159,13 +264,14 @@ class CartScreen extends ConsumerWidget {
                     children: [
                       AddButton(
                         title: 'Back to Home',
-                        onPressed: () {},
+                        onPressed: goToHomeScreen,
                       ),
                       const SizedBox(width: 10),
                       AddButton(
                         title: 'Pay Bill',
                         onPressed: showPopUpDialog,
-                        color: Colors.blue,
+                        bgButtonColor: Colors.blue,
+                        bgTextColor: Colors.white,
                       ),
                     ],
                   ),
