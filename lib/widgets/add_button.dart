@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
 class AddButton extends StatelessWidget {
-  AddButton({
+  const AddButton({
     super.key,
     required this.title,
     this.onPressed,
-    this.color,
+    this.bgButtonColor,
+    this.bgTextColor,
   });
 
   final String title;
   final VoidCallback? onPressed;
-  Color? color;
+  final Color? bgButtonColor;
+  final Color? bgTextColor;
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +23,17 @@ class AddButton extends StatelessWidget {
           style: ButtonStyle(
               shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  side: BorderSide(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
+                    borderRadius: BorderRadius.circular(5),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 1,
+                    )),
               ),
-              backgroundColor: WidgetStateProperty.all(color)),
+              backgroundColor: WidgetStateProperty.all(bgButtonColor)),
           child: Text(
             title,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
+              color: bgTextColor ?? Theme.of(context).colorScheme.primary,
             ),
           ),
         ),

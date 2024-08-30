@@ -25,6 +25,7 @@ class CardItem extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$productName ' '$message'),
+        duration: const Duration(milliseconds: 500),
       ),
     );
   }

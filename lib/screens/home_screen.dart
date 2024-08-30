@@ -2,14 +2,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:maspos/models/cart_item_model.dart';
 import 'package:maspos/models/product_model.dart';
 import 'package:maspos/screens/cart_screen.dart';
 import 'package:maspos/screens/login_screen.dart';
 import 'package:maspos/services/api_service.dart';
+import 'package:maspos/widgets/wave_bg.dart';
 
 import '../models/category_model.dart';
+import '../services/cart_notifier.dart';
 import '../widgets/add_button.dart';
 import '../widgets/category.dart';
 import '../widgets/custom_button.dart';
@@ -51,6 +53,16 @@ class _HomeScreenState extends State<HomeScreen> {
     productNameC.dispose();
     productPriceC.dispose();
     super.dispose();
+  }
+
+  void _showSnackBarMessage(
+      BuildContext context, String categoryName, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$categoryName ' '$message'),
+        duration: const Duration(milliseconds: 500),
+      ),
+    );
   }
 
   Future<void> _saveItem(ProductModel product) async {
@@ -109,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _categories = categories;
       });
     } catch (e) {
-      // print('Failed to load products: $e');
+      print('Failed to load products: $e');
     }
   }
 
@@ -125,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CartScreen(),
+          builder: (context) => CartScreen(widget.token),
         ));
   }
 
@@ -160,7 +172,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         controller: categoryController,
                       ),
                       const SizedBox(height: 20),
-                      // const CustomButton(title: 'Tambah', onPressed: null),
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: ElevatedButton(
@@ -174,13 +185,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 await _apiServices
                                     .addCategory(categoryController.text);
                                 await _loadCategories();
+                                _showSnackBarMessage(
+                                    context, categoryController.text, ' added');
                                 Navigator.pop(context);
                               } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text('Failed to add category: $e')),
-                                );
+                                _showSnackBarMessage(context,
+                                    categoryController.text, ' added fail');
                               }
                             }
                           },
@@ -377,14 +387,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       SimpleDialogOption(
                         onPressed: () {
                           _sortProductsByPriceAscending();
-                          Navigator.pop(context); // Tutup dialog
+                          Navigator.pop(context);
                         },
                         child: const Text('Lowest Price'),
                       ),
                       SimpleDialogOption(
                         onPressed: () {
                           _sortProductsByPriceDescending();
-                          Navigator.pop(context); // Tutup dialog
+                          Navigator.pop(context);
                         },
                         child: const Text('Highest Price'),
                       ),
@@ -395,49 +405,93 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             icon: const Icon(Icons.filter_alt_outlined),
           ),
-          IconButton(
-            onPressed: _goToCart,
-            icon: const Icon(Icons.shopping_cart_outlined),
+          Consumer(
+            builder: (BuildContext context, WidgetRef ref, Widget? child) {
+              final cartItems = ref.watch(cartProvider);
+
+              return Stack(
+                children: [
+                  child!,
+                  if (cartItems.isNotEmpty)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 20,
+                          minHeight: 20,
+                        ),
+                        child: Text(
+                          '${cartItems.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+            child: IconButton(
+              onPressed: _goToCart,
+              icon: const Icon(Icons.shopping_cart_outlined),
+            ),
           ),
           IconButton(onPressed: _logout, icon: const Icon(Icons.logout)),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Expanded(
-              child: _products.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      itemCount: _categories.length,
-                      itemBuilder: (context, index) {
-                        final category = _categories[index];
-                        final productsInCategory = _products
-                            .where(
-                                (product) => product.categoryId == category.id)
-                            .toList();
-
-                        return Category(
-                          category: category,
-                          products: productsInCategory,
-                          token: widget.token,
-                          onLoad: _loadProducts,
-                        );
-                      },
-                    ),
-            ),
-            Row(
+      body: Stack(
+        children: [
+          Container(
+            color: Theme.of(context).colorScheme.onSecondary,
+          ),
+          const WaveBackground(),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
               children: [
-                // + ADD CATEGORY
-                AddButton(title: '+ Add Category', onPressed: _addCategory),
-                const SizedBox(width: 10),
-                // ADD PRODUCT
-                AddButton(title: '+ Add Product', onPressed: _addProduct),
+                Expanded(
+                  child: _products.isEmpty
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          itemCount: _categories.length,
+                          itemBuilder: (context, index) {
+                            final category = _categories[index];
+                            final productsInCategory = _products
+                                .where((product) =>
+                                    product.categoryId == category.id)
+                                .toList();
+
+                            return Category(
+                              category: category,
+                              products: productsInCategory,
+                              token: widget.token,
+                              onLoad: _loadProducts,
+                            );
+                          },
+                        ),
+                ),
+                Row(
+                  children: [
+                    // + ADD CATEGORY
+                    AddButton(title: '+ Add Category', onPressed: _addCategory),
+                    const SizedBox(width: 10),
+                    // ADD PRODUCT
+                    AddButton(title: '+ Add Product', onPressed: _addProduct),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

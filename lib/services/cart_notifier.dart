@@ -26,6 +26,49 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
     }
   }
 
+  void decreaseQuantity(String id) {
+    final existingItemIndex = state.indexWhere((i) => i.id == id);
+
+    if (existingItemIndex != -1) {
+      final existingItem = state[existingItemIndex];
+
+      if (existingItem.quantity > 1) {
+        final updatedItem = existingItem.copyWith(
+          quantity: existingItem.quantity - 1,
+        );
+
+        state = [
+          ...state.sublist(0, existingItemIndex),
+          updatedItem,
+          ...state.sublist(existingItemIndex + 1),
+        ];
+      } else {
+        removeProductFromCart(id);
+      }
+    }
+  }
+
+  void increaseQuantity(String id) {
+    final existingItemIndex = state.indexWhere((i) => i.id == id);
+
+    if (existingItemIndex != -1) {
+      final existingItem = state[existingItemIndex];
+      final updatedItem = existingItem.copyWith(
+        quantity: existingItem.quantity + 1,
+      );
+
+      state = [
+        ...state.sublist(0, existingItemIndex),
+        updatedItem,
+        ...state.sublist(existingItemIndex + 1),
+      ];
+    }
+  }
+
+  void removeProductFromCart(String id) {
+    state = state.where((item) => item.id != id).toList();
+  }
+
   void clearCart() {
     state = [];
   }

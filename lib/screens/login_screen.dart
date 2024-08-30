@@ -58,8 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       var response = await http
           .post(Uri.parse('https://mas-pos.appmedia.id/api/v1/login'), body: {
-        'email': 'admin@example.com',
-        'password': 'secret',
+
+        'email': emailController.text,
+        'password': passController.text,
       });
 
       if (response.statusCode == 200) {
