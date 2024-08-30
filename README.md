@@ -1,16 +1,43 @@
-# maspos
+# Mobile Developer Mini Project Test
 
-A new Flutter project.
 
-## Getting Started
+## Aplikasi kasir untuk PT Warung Madura
 
-This project is a starting point for a Flutter application.
+Aplikasi ini dibangun menggunakan Flutter dan state management Riverpod. Aplikasi ini memiliki fitur sebagai berikut:
 
-A few resources to get you started if this is your first Flutter project:
+1. User dapat melakukan login/logout
+   
+    ![login](/screenshoots/login.png)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+2. User dapat menambahkan kategori
+   
+    ![Tambah Kategori](/screenshoots/tambah_kategori.png)
+
+3. User dapat menambah produk
+
+    ![Tambah Produk](/screenshoots/tambah_produk.png.png)
+
+4. User dapat menghapus produk
+
+    ![Hapus Produk](/screenshoots/tombol_hapus_produk.png)
+
+5. Ketika di Dashboard, user dapat melakukan filter produk (Menggunakan State Management)
+
+    User dapat memfiler harga dari harga terendah ke harga tertinggi dan sebaliknya melalui icon Filter.
+
+    ![Filter harga](/screenshoots/filer_harga.png)
+
+6. User dapat menambah produk kedalam keranjang (Menggunakan State Management)
+
+    User dapat menambahkan produk yang dipilih ke keranjang.
+
+    ![Masukkan produk ke keranjang](/screenshoots/memasukkan_produk.png)
+
+    Halaman keranjang yang memiliki produk:
+
+    ![Halaman keranjang](/screenshoots/halaman_keranjang.png)
+
+7. User dapat melakukan transaksi pembelian (Menggunakan State Management)
+
+    ![Pembayaran](/screenshoots/pembayaran.png)
