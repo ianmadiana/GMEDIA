@@ -16,7 +16,7 @@ Aplikasi ini dibangun menggunakan Flutter dan state management Riverpod. Aplikas
 
 3. User dapat menambah produk
 
-    ![Tambah Produk](/screenshoots/tambah_produk.png.png)
+    ![Tambah Produk](/screenshoots/tambah_produk.png)
 
 4. User dapat menghapus produk
 
