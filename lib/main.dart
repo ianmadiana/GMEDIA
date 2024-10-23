@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'screens/login_screen.dart';
 
-void main() async {
+void main() {
   runApp(
     const ProviderScope(
       child: MyApp(),
